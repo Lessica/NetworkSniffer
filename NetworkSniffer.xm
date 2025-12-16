@@ -24,8 +24,10 @@
 #import "NSProtocol.h"
 @import ObjectiveC.runtime;
 
+#define PREFERENCE_FILE @"/var/mobile/Library/Preferences/com.evilpenguin.networksniffer.plist"
+
 @interface WKBrowsingContextController : NSObject
-+ (void) registerSchemeForCustomProtocol:(NSString *)protocol;
++ (void)registerSchemeForCustomProtocol:(NSString *)protocol;
 @end
 
 static NSArray<Class> *_protocols(NSArray<Class> *classes) {
@@ -66,7 +68,9 @@ static NSArray<Class> *_protocols(NSArray<Class> *classes) {
 
 %ctor {
     @autoreleasepool {
-        NSUserDefaults *ud = [[NSUserDefaults alloc] initWithSuiteName:@"com.evilpenguin.networksniffer"];
+        NSUserDefaults *ud = [[NSUserDefaults alloc] initWithSuiteName:PREFERENCE_FILE];
+        [ud registerDefaults:@{@"Enabled": @NO, @"EnabledBundles": @[]}];
+
         BOOL enabled = [ud boolForKey:@"Enabled"];
         if (!enabled) {
             return;
