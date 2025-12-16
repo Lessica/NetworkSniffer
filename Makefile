@@ -1,18 +1,20 @@
-THEOS_DEVICE_IP = 127.0.0.1
-THEOS_DEVICE_PORT = 2222
-DEBUG = 1
+export PACKAGE_VERSION := 1.0
+export GO_EASY_ON_ME := 1
+
+TARGET := iphone:clang:16.5:14.0
+ARCHS := arm64 arm64e
 
 include $(THEOS)/makefiles/common.mk
 
-TARGET := iphone:10.0
-ARCHS := armv7 arm64 arm64e
-TWEAK_NAME = NetworkSniffer
-$(TWEAK_NAME)_CFLAGS += -DTHEOS_LEAN_AND_MEAN -fobjc-arc
-$(TWEAK_NAME)_FILES = \
-	Tweak.xm \
-	NSProtocol.m \
+TWEAK_NAME := NetworkSniffer
+
+NetworkSniffer_FILES += NetworkSniffer.xm
+NetworkSniffer_FILES += NSProtocol.m
+
+NetworkSniffer_CFLAGS += -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
-after-install::
-	install.exec "killall -9 SpringBoard"
+export THEOS_OBJ_DIR
+after-all::
+	@devkit/sim-install.sh
