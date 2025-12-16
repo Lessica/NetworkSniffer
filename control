@@ -1,7 +1,7 @@
 Package: com.evilpenguin.networksniffer
 Name: NetworkSniffer
-Depends: mobilesubstrate
-Version: 0.1.0
+Depends: mobilesubstrate, preferenceloader, com.opa334.altlist
+Version: 1.0
 Architecture: iphoneos-arm
 Description: iOS network sniffer
 Maintainer: EvilPenguin

@@ -28,7 +28,7 @@
 + (void) registerSchemeForCustomProtocol:(NSString *)protocol;
 @end
 
-NSArray<Class> *_protocols(NSArray<Class> *classes) {
+static NSArray<Class> *_protocols(NSArray<Class> *classes) {
     NSMutableArray *protocolClasses = [classes mutableCopy];
 
     if (![protocolClasses containsObject:NSProtocol.class]) {
@@ -40,7 +40,7 @@ NSArray<Class> *_protocols(NSArray<Class> *classes) {
 
 %hook __NSCFURLSessionConfiguration
  
-- (NSArray<Class> *) protocolClasses {
+- (NSArray<Class> *)protocolClasses {
     return _protocols(%orig);
 }
 
@@ -48,7 +48,7 @@ NSArray<Class> *_protocols(NSArray<Class> *classes) {
 
 %hook NSURLSessionConfiguration
  
-- (NSArray<Class> *) protocolClasses {
+- (NSArray<Class> *)protocolClasses {
     return _protocols(%orig);
 }
 
@@ -56,7 +56,7 @@ NSArray<Class> *_protocols(NSArray<Class> *classes) {
 
 %hook NSURLProtocol
 
-+ (void) unregisterClass:(Class)protocolClass {
++ (void)unregisterClass:(Class)protocolClass {
     if (protocolClass != NSProtocol.class) {
         %orig;
     }
@@ -65,13 +65,30 @@ NSArray<Class> *_protocols(NSArray<Class> *classes) {
 %end
 
 %ctor {
-    DLog(@"Starting");
+    @autoreleasepool {
+        NSUserDefaults *ud = [[NSUserDefaults alloc] initWithSuiteName:@"com.evilpenguin.networksniffer"];
+        BOOL enabled = [ud boolForKey:@"Enabled"];
+        if (!enabled) {
+            return;
+        }
 
-    // Add WKWebView 
-    Class WKBrowsingContextController_class = objc_getClass("WKBrowsingContextController");
-    [WKBrowsingContextController_class registerSchemeForCustomProtocol:@"http"];
-    [WKBrowsingContextController_class registerSchemeForCustomProtocol:@"https"];
+        NSArray<NSString *> *includedApps = [ud objectForKey:@"EnabledBundles"];
+        NSString *bid = [[NSBundle mainBundle] bundleIdentifier];
+        if (!bid || ![includedApps containsObject:bid]) {
+            return;
+        }
 
-    // Register NSProtocol
-    [NSURLProtocol registerClass:NSProtocol.class];
+        DLog(@"Starting");
+
+        // Add WKWebView 
+        Class WKBrowsingContextController_class = objc_getClass("WKBrowsingContextController");
+        [WKBrowsingContextController_class registerSchemeForCustomProtocol:@"http"];
+        [WKBrowsingContextController_class registerSchemeForCustomProtocol:@"https"];
+
+        // Register NSProtocol
+        [NSURLProtocol registerClass:NSProtocol.class];
+
+        // Initialize hooks
+        %init;
+    }
 }

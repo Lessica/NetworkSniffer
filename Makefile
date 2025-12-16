@@ -15,6 +15,9 @@ NetworkSniffer_CFLAGS += -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
+SUBPROJECTS += NetworkSnifferPrefs
+include $(THEOS_MAKE_PATH)/aggregate.mk
+
 export THEOS_OBJ_DIR
 after-all::
 	@devkit/sim-install.sh
