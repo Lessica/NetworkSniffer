@@ -1,4 +1,4 @@
-export PACKAGE_VERSION := 1.0
+export PACKAGE_VERSION := 1.0-2
 export GO_EASY_ON_ME := 1
 
 TARGET := iphone:clang:16.5:14.0
